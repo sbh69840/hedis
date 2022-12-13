@@ -125,13 +125,19 @@ connectSocket (addr:rest) = tryConnect >>= \case
                                (NS.addrProtocol addr)
 
 send :: ConnectionContext -> B.ByteString -> IO ()
-send (NormalHandle h) requestData =
+send (NormalHandle h) requestData = do
+      putStrLn "^^^"
+      putStrLn (show $ B.length requestData)
       ioErrorToConnLost (B.hPut h requestData)
 send (TLSContext ctx) requestData =
         ioErrorToConnLost (TLS.sendData ctx (LB.fromStrict requestData))
 
 recv :: ConnectionContext -> IO B.ByteString
-recv (NormalHandle h) = ioErrorToConnLost $ B.hGetSome h 4096
+recv (NormalHandle h) = do 
+  res <- ioErrorToConnLost $ B.hGetSome h 4096
+  putStrLn "$$$"
+  putStrLn (show $ B.length res)
+  return res
 recv (TLSContext ctx) = TLS.recvData ctx
 
 
