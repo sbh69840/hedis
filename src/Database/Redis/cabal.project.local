@@ -1,0 +1,8 @@
+ignore-project: False
+library-profiling: True
+executable-profiling: True
+profiling: True
+profiling-detail: all-functions
+with-compiler: ghc-8.8.4
+packages:
+    /home/shivaraj/explore/bytestring
