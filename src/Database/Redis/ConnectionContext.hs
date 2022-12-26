@@ -123,16 +123,23 @@ connectSocket (addr:rest) = tryConnect >>= \case
         createSock = NS.socket (NS.addrFamily addr)
                                (NS.addrSocketType addr)
                                (NS.addrProtocol addr)
+{-# NOINLINE hhPut #-}
+hhPut :: Handle -> B.ByteString -> IO ()
+hhPut = B.hPut
 
 send :: ConnectionContext -> B.ByteString -> IO ()
 send (NormalHandle h) requestData =
-      ioErrorToConnLost (B.hPut h requestData)
+      ioErrorToConnLost (hhPut h requestData)
 send (TLSContext ctx) requestData =
         ioErrorToConnLost (TLS.sendData ctx (LB.fromStrict requestData))
 
+{-# NOINLINE hhGetSome #-}
+hhGetSome :: Handle -> Int -> IO B.ByteString
+hhGetSome = B.hGetSome
+
 recv :: ConnectionContext -> IO B.ByteString
 recv (NormalHandle h) = 
-  ioErrorToConnLost $ B.hGetSome h 4096
+  ioErrorToConnLost $ hhGetSome h 4096
 recv (TLSContext ctx) = TLS.recvData ctx
 
 
