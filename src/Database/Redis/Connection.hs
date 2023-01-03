@@ -176,9 +176,11 @@ withCheckedConnect connInfo = bracket (checkedConnect connInfo) disconnect
 --  pool and runs the given 'Redis' action. Calls to 'runRedis' may thus block
 --  while all connections from the pool are in use.
 runRedis :: Connection -> Redis a -> IO a
-runRedis (NonClusteredConnection pool) redis =
+runRedis (NonClusteredConnection pool) redis = do
+  putStrLn "*_*"
   withResource pool $ \conn -> runRedisInternal conn redis
-runRedis (ClusteredConnection _ pool) redis =
+runRedis (ClusteredConnection _ pool) redis = do
+    putStrLn "@_@"
     withResource pool $ \conn -> runRedisClusteredInternal conn (refreshShardMap conn) redis
 
 newtype ClusterConnectError = ClusterConnectError Reply
